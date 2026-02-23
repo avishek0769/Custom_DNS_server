@@ -12,7 +12,28 @@ const db: Record<string, { type: "A" | "CNAME"; data: string }> = {
         type: "CNAME",
         data: "videotubes.app"
     },
+    "videocall.studio": {
+        type: "A",
+        data: "20.193.133.136"
+    },
+    "www.videocall.studio": {
+        type: "CNAME",
+        data: "videocall.studio"
+    },
+    "chatgpt.com": {
+        type: "A",
+        data: "172.64.155.209"
+    },
+    "google.com": {
+        type: "A",
+        data: "142.250.206.78"
+    },
 }
+// Command to forward outgoing UDP reqs to destination port 53 to local 2053 -
+// sudo iptables -t nat -A OUTPUT -p udp --dport 53 -j REDIRECT --to-ports 2053
+
+// Command to stop port forwarding -
+// sudo iptables -t nat -D OUTPUT -p udp --dport 53 -j REDIRECT --to-ports 2053
 
 server.on('message', (msg, rinfo) => {
     try {
@@ -22,6 +43,7 @@ server.on('message', (msg, rinfo) => {
         let response;
     
         if(dbResponse && questionName) {
+            console.log("Query --> ", query.questions?.[0].name)
             let answers: Answer[] = []
 
             if(dbResponse.type == "CNAME") {
@@ -57,10 +79,10 @@ server.on('message', (msg, rinfo) => {
                 questions: query.questions,
                 answers
             })
+
+            server.send(response, rinfo.port, rinfo.address)
+            console.log("Answer --> ", query.questions?.[0].name)
         }
-        else throw new Error("dbResponse or questionName not available")
-    
-        server.send(response, rinfo.port, rinfo.address)
     }
     catch (error) {
         console.log("Error --> ", error)
