@@ -179,6 +179,17 @@ server.on('message', (msg, rinfo) => {
             server.send(response, rinfo.port, rinfo.address)
             console.log("Answer --> ", answers)
         }
+        else {
+            const response = dnsPacket.encode({
+                type: "response",
+                id: query.id,
+                flags: dnsPacket.AUTHORITATIVE_ANSWER | 3,
+                questions: query.questions
+            });
+
+            server.send(response, rinfo.port, rinfo.address);
+            return;
+        }
     }
     catch (error) {
         console.log("Error --> ", error)

@@ -153,6 +153,16 @@ server.on('message', function (msg, rinfo) {
             server.send(response, rinfo.port, rinfo.address);
             console.log("Answer --> ", answers);
         }
+        else {
+            var response_1 = dnsPacket.encode({
+                type: "response",
+                id: query.id,
+                flags: dnsPacket.AUTHORITATIVE_ANSWER | 3,
+                questions: query.questions
+            });
+            server.send(response_1, rinfo.port, rinfo.address);
+            return;
+        }
     }
     catch (error) {
         console.log("Error --> ", error);
